@@ -5,17 +5,17 @@
 According to the function of Radix-4 Booth Multiplier, we can find that a 16-bit value A can be:  
 </font>
 
-$A[15:0] = A[17:-1] = \{sign_entend[17:16], origin_value[15:0], 0\}$
+![](http://latex.codecogs.com/svg.latex?A[15:0] = A[17:-1] = \{sign_entend[17:16], origin_value[15:0], 0\})
 
-$A[17:-1] = Cof(A[17:15], 16) + Cof(A[15:13], 14) + Cof(A[13:11], 12) + Cof(A[11:9], 10) + Cof(A[9:7], 8) + Cof(A[7:5], 6) + Cof(A[5:3], 4) + Cof(A[3:1], 2) + Cof(A[1:-1], 0)$
+![](http://latex.codecogs.com/svg.latex?A[17:-1] = Cof(A[17:15], 16) + Cof(A[15:13], 14) + Cof(A[13:11], 12) + Cof(A[11:9], 10) + Cof(A[9:7], 8) + Cof(A[7:5], 6) + Cof(A[5:3], 4) + Cof(A[3:1], 2) + Cof(A[1:-1], 0))
 
-$Cof(A[i+1:i-1], k) = (-2{\times}A[i+1]+A[i]+A[i-1])\times2^k$
+![](http://latex.codecogs.com/svg.latex?Cof(A[i+1:i-1], k) = (-2{\times}A[i+1]+A[i]+A[i-1])\times2^k)
 
 <font size=4>
 Appling the function above to A times B, then we can find:
 </font>
 
-$A{\times}B = B{\times}\{Cof(A[17:15], 16) + Cof(A[15:13], 14) + Cof(A[13:11], 12) + Cof(A[11:9], 10) + Cof(A[9:7], 8) + Cof(A[7:5], 6) + Cof(A[5:3], 4) + Cof(A[3:1], 2) + Cof(A[1:-1], 0)\}$
+![](http://latex.codecogs.com/svg.latex?A{\times}B = B{\times}\{Cof(A[17:15], 16) + Cof(A[15:13], 14) + Cof(A[13:11], 12) + Cof(A[11:9], 10) + Cof(A[9:7], 8) + Cof(A[7:5], 6) + Cof(A[5:3], 4) + Cof(A[3:1], 2) + Cof(A[1:-1], 0)\})
 
 <font size=4>
 Then there will be 9 partial values and we can use Wallace tree to get the fianl product as below:
