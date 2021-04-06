@@ -5,7 +5,7 @@
 According to the function of Radix-4 Booth Multiplier, we can find that a 16-bit value A can be:  
 </font>
 
-![](https://latex.codecogs.com/svg.latex?A[15:0]%20=%20\{A[15],%20A[15],%20A[15:0],%201%27b0\}=%20Cof(A[17:15],%2016)%20+%20Cof(A[15:13],%2014)%20+%20Cof(A[13:11],%2012)%20+%20Cof(A[11:9],%2010)%20+%20Cof(A[9:7],%208)%20+%20Cof(A[7:5],%206)%20+%20Cof(A[5:3],%204)%20+%20Cof(A[3:1],%202)%20+%20Cof(A[1:-1],%200))
+![](https://latex.codecogs.com/svg.latex?A[15:0]%20=%20A[17:-1]%20=%20\{A[15],%20A[15],%20A[15:0],%201%27b0\}%20=%20\sum_{i=0}^{8}Cof(A[(2{\times}i-1):(2{\times}i-1)],%202{\times}i))
 
 ![](https://latex.codecogs.com/svg.latex?Cof(A[i+1:i-1],%20k)%20=%20(-2{\times}A[i+1]+A[i]+A[i-1])\times2^k)
 
@@ -13,7 +13,7 @@ According to the function of Radix-4 Booth Multiplier, we can find that a 16-bit
 Appling the function above to A times B, then we can find:
 </font>
 
-![](https://latex.codecogs.com/svg.latex?A{\times}B%20=%20B{\times}\{Cof(A[17:15],%2016)%20+%20Cof(A[15:13],%2014)%20+%20Cof(A[13:11],%2012)%20+%20Cof(A[11:9],%2010)%20+%20Cof(A[9:7],%208)%20+%20Cof(A[7:5],%206)%20+%20Cof(A[5:3],%204)%20+%20Cof(A[3:1],%202)%20+%20Cof(A[1:-1],%200)\})
+![](https://latex.codecogs.com/svg.latex?A{\times}B%20=%20B{\times}\sum_{i=0}^{8}Cof(A[(2{\times}i-1):(2{\times}i-1)],%202{\times}i))
 
 <font size=4>
 Then there will be 9 partial values and we can use Wallace tree to get the fianl product as below:
