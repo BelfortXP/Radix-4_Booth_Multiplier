@@ -21,6 +21,7 @@ $A{\times}B = B{\times}\{Cof(A[17:15], 16) + Cof(A[15:13], 14) + Cof(A[13:11], 1
 Then there will be 9 partial values and we can use Wallace tree to get the fianl product as below:
 </font>
 
+
 ![](wtree.png)
 
 ## 2. Design Code
