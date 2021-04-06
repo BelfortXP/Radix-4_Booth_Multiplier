@@ -6,7 +6,7 @@ According to the function of Radix-4 Booth Multiplier, we can find that a 16-bit
 </font>
 <br>
 
-![](https://latex.codecogs.com/svg.latex?A[15:0]%20=%20A[17:-1]%20=%20\{A[15],%20A[15],%20A[15:0],%200\}%20=%20\sum_{i=0}^{8}Cof(A[(2{\times}i-1):(2{\times}i-1)],%202{\times}i))
+![](https://latex.codecogs.com/svg.latex?A%20=%20\sum_{i=0}^{8}Cof(A[(2{\times}i-1):(2{\times}i-1)],%202{\times}i))
 
 ![](https://latex.codecogs.com/svg.latex?Cof(A[i+1:i-1],%20k)%20=%20(-2{\times}A[i+1]+A[i]+A[i-1])\times2^k)
 
