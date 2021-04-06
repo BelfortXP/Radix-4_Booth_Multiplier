@@ -2,7 +2,7 @@
 
 ## 1. Algorithm
 <font size=4>
-According to the function of Radix-4 Booth Multiplier, we can find that a 16-bit value A can be:  
+According to the function of Radix-4 Booth Multiplier, we can find that a 16-bit value A can be:
 </font>
 
 ![](https://latex.codecogs.com/svg.latex?A[15:0]%20=%20A[17:-1]%20=%20\{A[15],%20A[15],%20A[15:0],%201%27b0\}%20=%20\sum_{i=0}^{8}Cof(A[(2{\times}i-1):(2{\times}i-1)],%202{\times}i))
