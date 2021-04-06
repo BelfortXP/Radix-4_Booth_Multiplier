@@ -469,7 +469,8 @@ module testbench;
       always @(A or B) begin
             #1 temp_pro = $signed(A) * $signed(B);
             if(temp_pro!=product) begin
-                  $display("Value Error when A=%d, B=%d, pro=%d, temp=%d", $signed(A), $signed(B), $signed(product), $signed(temp_pro));
+                  $display("Value Error when A=%d, B=%d, pro=%d, temp=%d", 
+                      $signed(A), $signed(B), $signed(product), $signed(temp_pro));
             end
 
             // $display("A=%d, B=%d, pro=%d, temp=%d", $signed(A), $signed(B), $signed(product), $signed(temp_pro));  
