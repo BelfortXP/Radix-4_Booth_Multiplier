@@ -8,16 +8,14 @@
 </font>
 <br>
   
-<img src="https://latex.codecogs.com/gif.latex?A[15:0]%20=%20A[17:-1]%20=%20&#x5C;{A[15],%20A[15],%20A[15:0],%201&#x27;b0&#x5C;}%20=%20&#x5C;sum_{i=0}^{8}Cof(A[(2{&#x5C;times}i-1):(2{&#x5C;times}i-1)],%202{&#x5C;times}i)"/>
-  
-<img src="https://latex.codecogs.com/gif.latex?Cof(A[i+1:i-1],%20k)%20=%20(-2{&#x5C;times}A[i+1]+A[i]+A[i-1])&#x5C;times2^k)"/>
-  
+![](func1.png)
+
 <font face="微软雅黑" size=3>
 将上述方程应用到A*B后，我们可以得到：
 </font>
 <br>
   
-<img src="https://latex.codecogs.com/gif.latex?A{&#x5C;times}B%20=%20B{&#x5C;times}&#x5C;sum_{i=0}^{8}Cof(A[(2{&#x5C;times}i-1):(2{&#x5C;times}i-1)],%202{&#x5C;times}i)"/>
+![](func2.png)
   
 <font face="微软雅黑" size=3>
 因此，基于Radix-4的Booth算法，我们可以将A*B转化为9个部分积之和。应用Wallace树，每次对三个数求和，可以将九个部分积求和的过程优化成5步。优化方式和具体流程如下图：
