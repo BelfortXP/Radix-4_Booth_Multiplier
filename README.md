@@ -1,32 +1,34 @@
-# Radix4_Booth_Multiplier
+# 期中作业-设计文档和仿真报告
 
-## 1. Algorithm
-<font size=4>
-According to the function of Radix-4 Booth Multiplier, we can find that a 16-bit value A can be:
-<br><br>
+## 1. 算法
+<font face="微软雅黑" size=3>
+根据Booth算法，一个16位二进制数A可被表示为如下形式：
 </font>
+<br><br>
 
-![](https://latex.codecogs.com/svg.latex?A[15:0]%20=%20A[17:-1]=\{2\{A[15]\},%20A[15:0],%201'b0\}) \
-![](https://latex.codecogs.com/svg.latex?A[17:-1]%20=%20\sum_{i=0}^{8}Cof(A[(2{\times}i-1):(2{\times}i-1)],%202{\times}i)) \
+![](https://latex.codecogs.com/svg.latex?A[15:0]%20=%20A[17:-1]%20=%20\{A[15],%20A[15],%20A[15:0],%201%27b0\}%20=%20\sum_{i=0}^{8}Cof(A[(2{\times}i-1):(2{\times}i-1)],%202{\times}i))
+
 ![](https://latex.codecogs.com/svg.latex?Cof(A[i+1:i-1],%20k)%20=%20(-2{\times}A[i+1]+A[i]+A[i-1])\times2^k)
 
-<font size=4>
-Appling the function above to A times B, then we can find:
+<font face="微软雅黑" size=3>
+将上述方程应用到A*B后，我们可以得到：
 </font>
 
 ![](https://latex.codecogs.com/svg.latex?A{\times}B%20=%20B{\times}\sum_{i=0}^{8}Cof(A[(2{\times}i-1):(2{\times}i-1)],%202{\times}i))
 
-<font size=4>
-Then there will be 9 partial values and we can use Wallace tree to get the fianl product as below:
-</font>
 <br>
+<font face="微软雅黑" size=3>
+因此，基于Radix-4的Booth算法，我们可以将A*B转化为9个部分积之和。应用Wallace树，每次对三个数求和，可以将九个部分积求和的过程优化成5步。优化方式和具体流程如下图：
+</font>
 
 ![](wtree.png)
 
-## 2. Design Code
+<br>
 
-<font size=4>
-The overall design will look like this:
+## 2. Verilog设计代码
+
+<font face="微软雅黑" size=3>
+模块之间的调用关系如下图，顶层设计模块为multiplier。
 </font>
 
 ```bash
@@ -37,7 +39,7 @@ multiplier.v
     └─half_adder.v
 ```
 
-<font size=3>
+<font face="微软雅黑" size=3>
 multiplier.v
 </font>
 
@@ -51,6 +53,7 @@ module multiplier(A, B, M, clk, rst_n);
       wire [17:0] pp1, pp2, pp3, pp4, pp5, pp6, pp7, pp8, pp9;
       wire [31:0] final_p;
 
+      // get booth partial values
       booth_16x16 U_BOOTH_16X16(
             .i_multa (A  ),
             .i_multb (B  ),
@@ -65,9 +68,8 @@ module multiplier(A, B, M, clk, rst_n);
             .o_pp9   (pp9) 
             );
 
+      // use wtree to get the final product
       wtree_16x16 U_WTREE_16X16(
-            .clk     (clk  ),
-            .rst_n   (rst_n),
             .pp1     (pp1  ),
             .pp2     (pp2  ),
             .pp3     (pp3  ),
@@ -80,12 +82,13 @@ module multiplier(A, B, M, clk, rst_n);
             .final_p (M    )
             );
 
-      assign M = final_p[31:0];
+      // if rst_n=1'b0, reset the output M
+      assign M = rst_n? final_p : 32'b0;
 
 endmodule
 ```
 
-<font size=3>
+<font face="微软雅黑" size=3>
 booth_16x16.v
 </font>
 
@@ -108,17 +111,15 @@ module booth_16x16(
       wire [1:0] sig_exta = {2{i_multa[15]}};
       wire [1:0] sig_extb = {2{i_multb[15]}};
 
-      // 6 = 4'b0110, -6 = 4'b1010, ~(0110) + 1 = 1010, ~(1010) + 1 = 0110, complement code can be neg value
-      // -6=4'b1010, 5'b10100: sign=1, value=~(0100)+1=1011+1=1100, complement code can times 2 by shift left
       // generat -x, -2x, 2x for Booth encoding
       wire [17:0] x     = {sig_exta, i_multa};
       wire [17:0] x_c   = ~x + 1;   // -x
       wire [17:0] xm2   = x << 1;   // 2*x
       wire [17:0] x_cm2 = x_c << 1; // -2*x
 
-      //        18 17         [16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1]     0  
-      //        |---|          |------------------------------------|      |
-      // extended sign bits              orignal operator             appended bit for encoding
+      //        [17 16 [15] 14 [13] 12 [11] 10 [9] 8 [7] 6 [5] 4 [3] 2 [1] 0 -1]  
+      //        |----| |----------------------------------------------------| |
+      //      extended sign          orignal operator                   appended bit
       wire [18:0] y     =  {sig_extb, i_multb, 1'b0};
 
       // calculating partial product based on Booth Radix-4 encoding
@@ -147,14 +148,12 @@ module booth_16x16(
 endmodule
 ```
 
-<font size=3>
+<font face="微软雅黑" size=3>
 wtree_16x16.v
 </font>
 
 ```verilog
 module wtree_16x16(
-      input  wire        clk  ,
-      input  wire        rst_n,
       input  wire [17:0] pp1  , 
       input  wire [17:0] pp2  , 
       input  wire [17:0] pp3  , 
@@ -300,7 +299,6 @@ module wtree_16x16(
 
 
       //================ third stage ================
-
       wire [31:0] stg3_s1, stg3_c1;
 
       assign stg3_s1[0] = stg2_s1[0];
@@ -382,7 +380,7 @@ module wtree_16x16(
 endmodule
 ```
 
-<font size=3>
+<font face="微软雅黑" size=3>
 full_adder.v
 </font>
 
@@ -401,7 +399,7 @@ module full_adder(
 endmodule
 ```
 
-<font size=3>
+<font face="微软雅黑" size=3>
 half_adder.v
 </font>
 
@@ -419,7 +417,15 @@ module half_adder(
 endmodule
 ```
 
-## 3. Testbench
+## 3. 仿真环境与Testbench
+
+<font face="微软雅黑" size=3>
+仿真环境为Linux系统，使用vcs与dve工具。
+<br>
+仿真思路：A, B为乘法器输入，初始状态下为0，然后A每隔一个时钟加1，当A为全1时，B加1，同时A变为0。重复这一过程，当A, B同时为全1时，A*B的所有情况遍历完毕。
+<br>
+正误判断方式：定义 temp_pro = $signed(A)*$signed(B), 然后对比temp_pro与乘法器的输出，具体代码如下：
+</font>
 
 ```verilog
 `timescale 1ns / 1ps
@@ -469,7 +475,7 @@ module testbench;
             #1 temp_pro = $signed(A) * $signed(B);
             if(temp_pro!=product) begin
                   $display("Value Error when A=%d, B=%d, pro=%d, temp=%d", 
-                      $signed(A), $signed(B), $signed(product), $signed(temp_pro));
+                        $signed(A), $signed(B), $signed(product), $signed(temp_pro));
             end
 
             // $display("A=%d, B=%d, pro=%d, temp=%d", $signed(A), $signed(B), $signed(product), $signed(temp_pro));  
@@ -488,4 +494,83 @@ module testbench;
       end
 
 endmodule
+```
+
+## 4. 仿真结果与波形
+
+<font face="微软雅黑" size=3>
+时间关系，很难将所有情况遍历，报告中仿真时A, B值的变化方式如下：
+</font>
+
+```verilog
+always @(posedge clk or rst_n) begin
+            if(~rst_n) begin
+                  A <= {width{1'b0}};
+                  B <= {width{1'b0}};
+            end
+            else begin
+                  if(&A) begin
+                        A <= {width{1'b0}};
+                        B <= (B << 1) + 1'b1;
+                        if(&B) begin
+                              $display("Check finish value: A-%b, B-%b", A, B);
+                              #1 $finish;
+                        end
+                  end
+                  else begin
+                        A <= (A << 1) + 1'b1;
+                  end
+            end
+      end
+```
+
+<font face="微软雅黑" size=3>
+仿真波形总体概览：
+</font>
+
+![](simulation1.png)
+
+<font face="微软雅黑" size=3>
+仿真波形局部图如下：
+</font>
+
+![](simulation2.png)
+
+## 5. Makefile
+
+```Makefile
+RTL  := ./src/*.v
+TB   += ./test/*.v
+SEED ?= $(shell data +%s)
+
+# -------- run the simualtion throught the common methods --------
+run: compile simulate
+
+compile:
+	vcs -sverilog -debug_all $(RTL) $(TB) -l com_$(SEED).log
+
+simulate:
+	./simv +plusargs_save +seed=$(SEED) -l sim_$(SEED).log
+
+run_dve:
+	dve -vpd ./vcdplus.vpd &
+
+# -------- coverage driven strategy-------------------------------
+run_cov: compile_coverage simulate_coverage
+
+compile_coverage:
+	vcs -debug_all -cm line+cond+fsm+tgl+branch -lca $(RTL) $(TB) -l com_$(SEED).log
+
+simulate_coverage:
+	./simv +plusargs_save +seed=$(SEED) -cm line+cond+fsm+tgl+branch -lca -cm_log \
+		cm_$(SEED).log -l sim_$(SEED).log
+
+report_cov:
+	urg -dir simv.vdb -format both -report coverage
+
+dve_cov:
+	dve -cov -covdir simv.vdb -lca
+
+clean:
+	@-rm -rf *.log csrc simv* *.key *.vpd *.vdb *.bak *.help DVEfiles coverage
 ```
