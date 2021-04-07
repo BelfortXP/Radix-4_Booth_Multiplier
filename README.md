@@ -1,38 +1,37 @@
-# 期中作业-设计文档和仿真报告
-
-## 1. 算法
+#  期中作业-设计文档和仿真报告
+  
+  
+##  1. 算法
+  
 <font face="微软雅黑" size=3>
 根据Booth算法，一个16位二进制数A可被表示为如下形式：
 </font>
-<br><br>
-
-![](https://latex.codecogs.com/svg.latex?A[15:0]%20=%20A[17:-1]%20=%20\{A[15],%20A[15],%20A[15:0],%201%27b0\}%20=%20\sum_{i=0}^{8}Cof(A[(2{\times}i-1):(2{\times}i-1)],%202{\times}i))
-
-![](https://latex.codecogs.com/svg.latex?Cof(A[i+1:i-1],%20k)%20=%20(-2{\times}A[i+1]+A[i]+A[i-1])\times2^k)
-
+<br>
+  
+<img src="https://latex.codecogs.com/gif.latex?A[15:0]%20=%20A[17:-1]%20=%20&#x5C;{A[15],%20A[15],%20A[15:0],%201&#x27;b0&#x5C;}%20=%20&#x5C;sum_{i=0}^{8}Cof(A[(2{&#x5C;times}i-1):(2{&#x5C;times}i-1)],%202{&#x5C;times}i)"/>
+  
+<img src="https://latex.codecogs.com/gif.latex?Cof(A[i+1:i-1],%20k)%20=%20(-2{&#x5C;times}A[i+1]+A[i]+A[i-1])&#x5C;times2^k)"/>
+  
 <font face="微软雅黑" size=3>
 将上述方程应用到A*B后，我们可以得到：
 </font>
 <br>
-
-![](https://latex.codecogs.com/svg.latex?A{\times}B%20=%20B{\times}\sum_{i=0}^{8}Cof(A[(2{\times}i-1):(2{\times}i-1)],%202{\times}i))
-
-<br>
+  
+<img src="https://latex.codecogs.com/gif.latex?A{&#x5C;times}B%20=%20B{&#x5C;times}&#x5C;sum_{i=0}^{8}Cof(A[(2{&#x5C;times}i-1):(2{&#x5C;times}i-1)],%202{&#x5C;times}i)"/>
+  
 <font face="微软雅黑" size=3>
 因此，基于Radix-4的Booth算法，我们可以将A*B转化为9个部分积之和。应用Wallace树，每次对三个数求和，可以将九个部分积求和的过程优化成5步。优化方式和具体流程如下图：
 </font>
-<br>
-
-![](wtree.png)
-
-<br>
-
-## 2. Verilog设计代码
-
+  
+![](wtree.png )
+  
+##  2. Verilog设计代码
+  
+  
 <font face="微软雅黑" size=3>
 模块之间的调用关系如下图，顶层设计模块为multiplier。
 </font>
-
+  
 ```bash
 multiplier.v
 ├─booth_16x16.v
@@ -40,21 +39,21 @@ multiplier.v
     ├─full_adder.v
     └─half_adder.v
 ```
-
+  
 <font face="微软雅黑" size=3>
 multiplier.v
 </font>
-
+  
 ```verilog
 module multiplier(A, B, M, clk, rst_n);
       parameter width = 16;
       input                     clk, rst_n;
       input  wire [width-1:0]   A, B;
       output wire [2*width-1:0] M;
-
+  
       wire [17:0] pp1, pp2, pp3, pp4, pp5, pp6, pp7, pp8, pp9;
       wire [31:0] final_p;
-
+  
       // get booth partial values
       booth_16x16 U_BOOTH_16X16(
             .i_multa (A  ),
@@ -69,7 +68,7 @@ module multiplier(A, B, M, clk, rst_n);
             .o_pp8   (pp8),
             .o_pp9   (pp9) 
             );
-
+  
       // use wtree to get the final product
       wtree_16x16 U_WTREE_16X16(
             .pp1     (pp1  ),
@@ -83,17 +82,17 @@ module multiplier(A, B, M, clk, rst_n);
             .pp9     (pp9  ),
             .final_p (M    )
             );
-
+  
       // if rst_n=1'b0, reset the output M
       assign M = rst_n? final_p : 32'b0;
-
+  
 endmodule
 ```
-
+  
 <font face="微软雅黑" size=3>
 booth_16x16.v
 </font>
-
+  
 ```verilog
 module booth_16x16(
       input  wire [15:0] i_multa,
@@ -108,22 +107,22 @@ module booth_16x16(
       output wire [17:0] o_pp8  ,
       output wire [17:0] o_pp9 
       );
-
+  
       // sign bit extend
       wire [1:0] sig_exta = {2{i_multa[15]}};
       wire [1:0] sig_extb = {2{i_multb[15]}};
-
+  
       // generat -x, -2x, 2x for Booth encoding
       wire [17:0] x     = {sig_exta, i_multa};
       wire [17:0] x_c   = ~x + 1;   // -x
       wire [17:0] xm2   = x << 1;   // 2*x
       wire [17:0] x_cm2 = x_c << 1; // -2*x
-
+  
       //        [17 16 [15] 14 [13] 12 [11] 10 [9] 8 [7] 6 [5] 4 [3] 2 [1] 0 -1]  
       //        |----| |----------------------------------------------------| |
       //      extended sign          orignal operator                   appended bit
       wire [18:0] y     =  {sig_extb, i_multb, 1'b0};
-
+  
       // calculating partial product based on Booth Radix-4 encoding
       wire [17:0] pp[8:0];
       generate
@@ -136,7 +135,7 @@ module booth_16x16(
                                    (y[i+2:i] == 3'b100                      ) ? x_cm2 : 18'b0;
             end
       endgenerate
-
+  
       assign o_pp1   = pp[0];
       assign o_pp2   = pp[1];
       assign o_pp3   = pp[2];
@@ -146,14 +145,14 @@ module booth_16x16(
       assign o_pp7   = pp[6];
       assign o_pp8   = pp[7];
       assign o_pp9   = pp[8];
-
+  
 endmodule
 ```
-
+  
 <font face="微软雅黑" size=3>
 wtree_16x16.v
 </font>
-
+  
 ```verilog
 module wtree_16x16(
       input  wire [17:0] pp1  , 
@@ -167,13 +166,13 @@ module wtree_16x16(
       input  wire [17:0] pp9  , 
       output wire [31:0] final_p
       );
-
-
+  
+  
       // ================ first stage ================
       wire [21:0] stg1_s1, stg1_c1;
       wire [21:0] stg1_s2, stg1_c2;
       wire [19:0] stg1_s3, stg1_c3;
-
+  
       assign stg1_s1[1:0]   = pp1[1:0];
       assign stg1_c1[1:0]   = 2'b0;
       half_adder u_a11_2 (.a(pp1[ 2]), .b(pp2[ 0]),               .s(stg1_s1[ 2]), .co(stg1_c1[ 2]));
@@ -196,7 +195,7 @@ module wtree_16x16(
       full_adder u_a11_19(.a(pp1[17]), .b(pp2[17]), .ci(pp3[15]), .s(stg1_s1[19]), .co(stg1_c1[19]));
       full_adder u_a11_20(.a(pp1[17]), .b(pp2[17]), .ci(pp3[16]), .s(stg1_s1[20]), .co(stg1_c1[20]));
       full_adder u_a11_21(.a(pp1[17]), .b(pp2[17]), .ci(pp3[17]), .s(stg1_s1[21]), .co(stg1_c1[21]));
-
+  
       assign stg1_s2[1:0]   = pp4[1:0];
       assign stg1_c2[1:0]   = 2'b0;
       half_adder u_a12_2 (.a(pp4[ 2]), .b(pp5[ 0]),               .s(stg1_s2[ 2]), .co(stg1_c2[ 2]));
@@ -219,7 +218,7 @@ module wtree_16x16(
       full_adder u_a12_19(.a(pp4[17]), .b(pp5[17]), .ci(pp6[15]), .s(stg1_s2[19]), .co(stg1_c2[19]));
       full_adder u_a12_20(.a(pp4[17]), .b(pp5[17]), .ci(pp6[16]), .s(stg1_s2[20]), .co(stg1_c2[20]));
       full_adder u_a12_21(.a(pp4[17]), .b(pp5[17]), .ci(pp6[17]), .s(stg1_s2[21]), .co(stg1_c2[21]));
-
+  
       assign stg1_s3[1:0]   = pp7[1:0];
       assign stg1_c3[1:0]   = 2'b0;
       half_adder u_a13_2 (.a(pp7[ 2]), .b(pp8[ 0]),               .s(stg1_s3[ 2]), .co(stg1_c3[ 2]));
@@ -240,12 +239,12 @@ module wtree_16x16(
       full_adder u_a13_17(.a(pp7[17]), .b(pp8[15]), .ci(pp9[13]), .s(stg1_s3[17]), .co(stg1_c3[17]));
       full_adder u_a13_18(.a(pp7[17]), .b(pp8[16]), .ci(pp9[14]), .s(stg1_s3[18]), .co(stg1_c3[18]));
       full_adder u_a13_19(.a(pp7[17]), .b(pp8[17]), .ci(pp9[15]), .s(stg1_s3[19]), .co(stg1_c3[19]));
-
-
+  
+  
       //================ second stage ================
       wire [27:0] stg2_s1, stg2_c1;
       wire [24:0] stg2_s2, stg2_c2;
-
+  
       assign stg2_s1[0] = stg1_s1[0];
       assign stg2_c1[0] = 1'b0; 
       half_adder u_a21_1 (.a(stg1_s1[ 1]), .b(stg1_c1[ 0]),                   .s(stg2_s1[ 1]), .co(stg2_c1[ 1]));
@@ -275,7 +274,7 @@ module wtree_16x16(
       full_adder u_a21_25(.a(stg1_s1[21]), .b(stg1_c1[21]), .ci(stg1_s2[19]), .s(stg2_s1[25]), .co(stg2_c1[25]));
       full_adder u_a21_26(.a(stg1_s1[21]), .b(stg1_c1[21]), .ci(stg1_s2[20]), .s(stg2_s1[26]), .co(stg2_c1[26]));
       full_adder u_a21_27(.a(stg1_s1[21]), .b(stg1_c1[21]), .ci(stg1_s2[21]), .s(stg2_s1[27]), .co(stg2_c1[27]));
-
+  
       assign stg2_s2[4:0] = stg1_c2[4:0];
       assign stg2_c2[4:0] = 5'b0; 
       half_adder u_a22_5 (.a(stg1_c2[ 5]), .b(stg1_s3[ 0]),                   .s(stg2_s2[ 5]), .co(stg2_c2[ 5]));
@@ -298,11 +297,11 @@ module wtree_16x16(
       full_adder u_a22_22(.a(stg1_c2[21]), .b(stg1_s3[17]), .ci(stg1_c3[16]), .s(stg2_s2[22]), .co(stg2_c2[22]));
       full_adder u_a22_23(.a(stg1_c2[21]), .b(stg1_s3[18]), .ci(stg1_c3[17]), .s(stg2_s2[23]), .co(stg2_c2[23]));
       full_adder u_a22_24(.a(stg1_c2[21]), .b(stg1_s3[19]), .ci(stg1_c3[18]), .s(stg2_s2[24]), .co(stg2_c2[24]));
-
-
+  
+  
       //================ third stage ================
       wire [31:0] stg3_s1, stg3_c1;
-
+  
       assign stg3_s1[0] = stg2_s1[0];
       assign stg3_c1[0] = 1'b0;
       half_adder u_a31_1 (.a(stg2_s1[ 1]), .b(stg2_c1[ 0]),                   .s(stg3_s1[ 1]), .co(stg3_c1[ 1]));
@@ -336,11 +335,11 @@ module wtree_16x16(
       full_adder u_a31_29(.a(stg2_s1[27]), .b(stg2_c1[27]), .ci(stg2_s2[22]), .s(stg3_s1[29]), .co(stg3_c1[29]));
       full_adder u_a31_30(.a(stg2_s1[27]), .b(stg2_c1[27]), .ci(stg2_s2[23]), .s(stg3_s1[30]), .co(stg3_c1[30]));
       full_adder u_a31_31(.a(stg2_s1[27]), .b(stg2_c1[27]), .ci(stg2_s2[24]), .s(stg3_s1[31]), .co(stg3_c1[31]));
-
-
+  
+  
       //================ forth stage ===============
       wire [31:0] stg4_s1, stg4_c1;
-
+  
       assign stg4_s1[0] = stg3_s1[0];
       assign stg4_c1[0] = 1'b0;
       half_adder u_a41_1 (.a(stg3_s1[ 1]), .b(stg3_c1[ 0]),                   .s(stg4_s1[ 1]), .co(stg4_c1[ 1]));
@@ -374,18 +373,18 @@ module wtree_16x16(
       full_adder u_a41_29(.a(stg3_s1[29]), .b(stg3_c1[28]), .ci(stg2_c2[21]), .s(stg4_s1[29]), .co(stg4_c1[29]));
       full_adder u_a41_30(.a(stg3_s1[30]), .b(stg3_c1[29]), .ci(stg2_c2[22]), .s(stg4_s1[30]), .co(stg4_c1[30]));
       full_adder u_a41_31(.a(stg3_s1[31]), .b(stg3_c1[30]), .ci(stg2_c2[23]), .s(stg4_s1[31]), .co(stg4_c1[31]));
-
-
+  
+  
       //================ final stage ===============
       assign final_p = stg4_s1 + {stg4_c1[30:0], 1'b0};  
-
+  
 endmodule
 ```
-
+  
 <font face="微软雅黑" size=3>
 full_adder.v
 </font>
-
+  
 ```verilog
 module full_adder(
       input  wire a,
@@ -394,17 +393,17 @@ module full_adder(
       output wire s,
       output wire co
       );
-
+  
       assign s  = a ^ b ^ ci;
       assign co = (a & b) | (a & ci) | (b & ci);
-
+  
 endmodule
 ```
-
+  
 <font face="微软雅黑" size=3>
 half_adder.v
 </font>
-
+  
 ```verilog
 module half_adder(
       input  wire a,
@@ -412,45 +411,46 @@ module half_adder(
       output wire s,
       output wire co
       );
-
+  
       assign s  = a ^ b;
       assign co = a & b;
-
+  
 endmodule
 ```
-
-## 3. 仿真环境与Testbench
-
+  
+##  3. 仿真环境与Testbench
+  
+  
 <font face="微软雅黑" size=3>
 仿真环境为Linux系统，使用vcs与dve工具。
 <br>
 仿真思路：A, B为乘法器输入，初始状态下为0，然后A每隔一个时钟加1，当A为全1时，B加1，同时A变为0。重复这一过程，当A, B同时为全1时，A*B的所有情况遍历完毕。
 <br>
-正误判断方式：定义 temp_pro = $signed(A)*$signed(B), 然后对比temp_pro与乘法器的输出，具体代码如下：
+正误判断方式：定义 temp_pro = <img src="https://latex.codecogs.com/gif.latex?signed(A)*"/>signed(B), 然后对比temp_pro与乘法器的输出，具体代码如下：
 </font>
-
+  
 ```verilog
 `timescale 1ns / 1ps
-
+  
 module testbench;
       parameter width = 16;
-
+  
       reg rst_n;
       reg clk;
-
+  
       initial begin
             rst_n = 1'b0;
             clk  = 1'b0;
             #100;
             rst_n = 1'b1;
       end 
-
+  
       always #1 clk = ~clk;
-
+  
       reg  [width-1:0]   A;
       reg  [width-1:0]   B;
       wire [2*width-1:0] product;
-
+  
       always @(posedge clk or rst_n) begin
             if(~rst_n) begin
                   A <= {width{1'b0}};
@@ -470,19 +470,19 @@ module testbench;
                   end
             end
       end
-
+  
       reg [2*width-1:0] temp_pro;
-
+  
       always @(A or B) begin
             #1 temp_pro = $signed(A) * $signed(B);
             if(temp_pro!=product) begin
                   $display("Value Error when A=%d, B=%d, pro=%d, temp=%d", 
                         $signed(A), $signed(B), $signed(product), $signed(temp_pro));
             end
-
+  
             // $display("A=%d, B=%d, pro=%d, temp=%d", $signed(A), $signed(B), $signed(product), $signed(temp_pro));  
       end
-
+  
       multiplier U_MULTIPLIER(
             .A     (A      ),
             .B     (B      ),
@@ -490,20 +490,21 @@ module testbench;
             .rst_n (rst_n  ),
             .clk   (clk    )
             );
-
+  
       initial begin
             $vcdpluson;
       end
-
+  
 endmodule
 ```
-
-## 4. 仿真结果与波形
-
+  
+##  4. 仿真结果与波形
+  
+  
 <font face="微软雅黑" size=3>
 时间关系，很难将所有情况遍历，报告中仿真时A, B值的变化方式如下：
 </font>
-
+  
 ```verilog
 always @(posedge clk or rst_n) begin
             if(~rst_n) begin
@@ -525,54 +526,56 @@ always @(posedge clk or rst_n) begin
             end
       end
 ```
-
+  
 <font face="微软雅黑" size=3>
 仿真波形总体概览：
 </font>
-
-![](simulation1.png)
-
+  
+![](simulation1.png )
+  
 <font face="微软雅黑" size=3>
 仿真波形局部图如下：
 </font>
-
-![](simulation2.png)
-
-## 5. Makefile
-
+  
+![](simulation2.png )
+  
+##  5. Makefile
+  
+  
 ```Makefile
 RTL  := ./src/*.v
 TB   += ./test/*.v
 SEED ?= $(shell data +%s)
-
+  
 # -------- run the simualtion throught the common methods --------
 run: compile simulate
-
+  
 compile:
 	vcs -sverilog -debug_all $(RTL) $(TB) -l com_$(SEED).log
-
+  
 simulate:
 	./simv +plusargs_save +seed=$(SEED) -l sim_$(SEED).log
-
+  
 run_dve:
 	dve -vpd ./vcdplus.vpd &
-
+  
 # -------- coverage driven strategy-------------------------------
 run_cov: compile_coverage simulate_coverage
-
+  
 compile_coverage:
 	vcs -debug_all -cm line+cond+fsm+tgl+branch -lca $(RTL) $(TB) -l com_$(SEED).log
-
+  
 simulate_coverage:
 	./simv +plusargs_save +seed=$(SEED) -cm line+cond+fsm+tgl+branch -lca -cm_log \
 		cm_$(SEED).log -l sim_$(SEED).log
-
+  
 report_cov:
 	urg -dir simv.vdb -format both -report coverage
-
+  
 dve_cov:
 	dve -cov -covdir simv.vdb -lca
-
+  
 clean:
 	@-rm -rf *.log csrc simv* *.key *.vpd *.vdb *.bak *.help DVEfiles coverage
 ```
+  
