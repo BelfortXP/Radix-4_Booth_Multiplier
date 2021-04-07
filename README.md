@@ -4,7 +4,7 @@
 <font face="微软雅黑" size=3>
 根据Booth算法，一个16位二进制数A可被表示为如下形式：
 </font>
-<br>
+<br><br>
 
 ![](https://latex.codecogs.com/svg.latex?A[15:0]%20=%20A[17:-1]%20=%20\{A[15],%20A[15],%20A[15:0],%201%27b0\}%20=%20\sum_{i=0}^{8}Cof(A[(2{\times}i-1):(2{\times}i-1)],%202{\times}i))
 
