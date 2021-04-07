@@ -22,8 +22,6 @@ module multiplier(A, B, M, clk, rst_n);
             );
 
       wtree_16x16 U_WTREE_16X16(
-            .clk     (clk  ),
-            .rst_n   (rst_n),
             .pp1     (pp1  ),
             .pp2     (pp2  ),
             .pp3     (pp3  ),
@@ -36,6 +34,6 @@ module multiplier(A, B, M, clk, rst_n);
             .final_p (M    )
             );
 
-      assign M = final_p[31:0];
+      assign M = rst_n? final_p : 32'b0;
 
 endmodule
