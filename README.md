@@ -22,9 +22,9 @@
 </font>
   
 ![](wtree.png )
-  
+
+<br>  
 ##  2. Verilog设计代码
-  
   
 <font face="微软雅黑" size=3>
 模块之间的调用关系如下图，顶层设计模块为multiplier。
@@ -69,16 +69,16 @@ module multiplier(A, B, M, clk, rst_n);
   
       // use wtree to get the final product
       wtree_16x16 U_WTREE_16X16(
-            .pp1     (pp1  ),
-            .pp2     (pp2  ),
-            .pp3     (pp3  ),
-            .pp4     (pp4  ),
-            .pp5     (pp5  ),
-            .pp6     (pp6  ),
-            .pp7     (pp7  ),
-            .pp8     (pp8  ),
-            .pp9     (pp9  ),
-            .final_p (M    )
+            .pp1     (pp1    ),
+            .pp2     (pp2    ),
+            .pp3     (pp3    ),
+            .pp4     (pp4    ),
+            .pp5     (pp5    ),
+            .pp6     (pp6    ),
+            .pp7     (pp7    ),
+            .pp8     (pp8    ),
+            .pp9     (pp9    ),
+            .final_p (final_p)
             );
   
       // if rst_n=1'b0, reset the output M
@@ -379,7 +379,7 @@ module wtree_16x16(
 endmodule
 ```
 
-<br><br>
+<br>
 <font face="微软雅黑" size=3>
 full_adder.v
 </font>
