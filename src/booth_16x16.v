@@ -16,16 +16,15 @@ module booth_16x16(
       wire [1:0] sig_exta = {2{i_multa[15]}};
       wire [1:0] sig_extb = {2{i_multb[15]}};
 
-      // 6 = 4'b0110, -6 = 4'b1010, ~(0110) + 1 = 1010, ~(1010) + 1 = 0110, complement code can be neg value
       // generat -x, -2x, 2x for Booth encoding
       wire [17:0] x     = {sig_exta, i_multa};
       wire [17:0] x_c   = ~x + 1;   // -x
       wire [17:0] xm2   = x << 1;   // 2*x
       wire [17:0] x_cm2 = x_c << 1; // -2*x
 
-      //        18 17         [16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1]     0  
-      //        |---|          |------------------------------------|      |
-      // extended sign bits              orignal operator             appended bit for encoding
+      //        [17 16 [15] 14 [13] 12 [11] 10 [9] 8 [7] 6 [5] 4 [3] 2 [1] 0 -1]  
+      //        |----| |----------------------------------------------------| |
+      //      extended sign          orignal operator                   appended bit
       wire [18:0] y     =  {sig_extb, i_multb, 1'b0};
 
       // calculating partial product based on Booth Radix-4 encoding
