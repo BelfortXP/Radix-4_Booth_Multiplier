@@ -1,6 +1,4 @@
 module wtree_16x16(
-      input  wire        clk  ,
-      input  wire        rst_n,
       input  wire [17:0] pp1  , 
       input  wire [17:0] pp2  , 
       input  wire [17:0] pp3  , 
