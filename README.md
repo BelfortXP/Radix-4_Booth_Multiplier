@@ -23,7 +23,6 @@
   
 ![](wtree.png )
 
-<br>  
 ##  2. Verilog设计代码
   
 <font face="微软雅黑" size=3>
@@ -379,7 +378,7 @@ module wtree_16x16(
 endmodule
 ```
 
-<br>
+<br><br>
 <font face="微软雅黑" size=3>
 full_adder.v
 </font>
