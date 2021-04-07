@@ -4,7 +4,7 @@
 <font face="微软雅黑" size=3>
 根据Booth算法，一个16位二进制数A可被表示为如下形式：
 </font>
-<br><br>
+<br>
 
 ![](https://latex.codecogs.com/svg.latex?A[15:0]%20=%20A[17:-1]%20=%20\{A[15],%20A[15],%20A[15:0],%201%27b0\}%20=%20\sum_{i=0}^{8}Cof(A[(2{\times}i-1):(2{\times}i-1)],%202{\times}i))
 
@@ -13,6 +13,7 @@
 <font face="微软雅黑" size=3>
 将上述方程应用到A*B后，我们可以得到：
 </font>
+<br>
 
 ![](https://latex.codecogs.com/svg.latex?A{\times}B%20=%20B{\times}\sum_{i=0}^{8}Cof(A[(2{\times}i-1):(2{\times}i-1)],%202{\times}i))
 
@@ -20,6 +21,7 @@
 <font face="微软雅黑" size=3>
 因此，基于Radix-4的Booth算法，我们可以将A*B转化为9个部分积之和。应用Wallace树，每次对三个数求和，可以将九个部分积求和的过程优化成5步。优化方式和具体流程如下图：
 </font>
+<br>
 
 ![](wtree.png)
 
