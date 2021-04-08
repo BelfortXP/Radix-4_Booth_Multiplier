@@ -6,14 +6,12 @@
 <font face="微软雅黑" size=3>
 根据Booth算法，一个16位二进制数A可被表示为如下形式：
 </font>
-<br>
   
 ![](func1.png)
 
 <font face="微软雅黑" size=3>
 将上述方程应用到A*B后，我们可以得到：
 </font>
-<br>
   
 ![](func2.png)
   
@@ -378,7 +376,6 @@ module wtree_16x16(
 endmodule
 ```
 
-<br><br>
 <font face="微软雅黑" size=3>
 full_adder.v
 </font>
